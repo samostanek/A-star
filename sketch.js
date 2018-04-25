@@ -3,7 +3,13 @@ var grid;
 function setup() {
 	createCanvas(400, 400);
 
-	grid = gridInit(20);
+	grid = gridInit(50);
+
+	for (var i = 0; i < grid.length; i++) {
+		for (var j = 0; j < grid[i].length; j++) {
+			grid[i][j] = new Spot();
+		}
+	}
 }
 
 function draw() {
@@ -19,7 +25,7 @@ function gridInit(space) {
 	// Make x part of grid
 	let out = new Array(cols);
 	// Add cell for each row in col i
-	for (col in out) col = new Array(rows);
+	for (var i = 0; i < out.length; i++) out[i] = new Array(rows);
 
 	return out
 }
