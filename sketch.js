@@ -13,6 +13,8 @@ function setup() {
     }
   }
 
+  for (let i of grid) for (let j of i) j.addNeighbors(grid);
+
   start = grid[0][0];
   end = grid[grid.length - 1][grid[0].length - 1];
 
