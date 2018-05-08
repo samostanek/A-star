@@ -27,4 +27,10 @@ class Spot {
       this.neighbors.push(grid[this.x][this.y + 1]);
     if (this.y != 0) this.neighbors.push(grid[this.x][this.y - 1]);
   }
+
+  evaluate(g, end) {
+    this.g = g;
+    this.h = dist(this.x, this.y, end.x, end.y);
+    this.f = this.g + this.h;
+  }
 }

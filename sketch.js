@@ -7,8 +7,8 @@ function setup() {
   spc = 50;
   grid = gridInit(spc);
 
-  for (var i = 0; i < grid.length; i++) {
-    for (var j = 0; j < grid[i].length; j++) {
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
       grid[i][j] = new Spot(i, j);
     }
   }
@@ -24,6 +24,18 @@ function setup() {
 
 function draw() {
   if (openSet.length > 0) {
+    var current = openSet[0];
+    for (let i of openSet) if (current.f > i.f) current = i;
+
+    closedSet.push(current);
+    openSet = removeFromArray(current, openSet);
+
+    for (let neighbor of current.neighbors) {
+      if (!closedSet.includes(neighbor)) {
+        neighbor.evaluate(current.g + 1, end);
+        openSet.push(neighbor);
+      }
+    }
   } else {
     console.log("DONE!");
     noLoop();
@@ -46,4 +58,10 @@ function gridInit(space) {
   for (var i = 0; i < out.length; i++) out[i] = new Array(rows);
 
   return out;
+}
+
+function removeFromArray(el, array) {
+  for (let i = array.length - 1; i >= 0; i--)
+    if (array[i] == el) array.splice(i, 1);
+  return array;
 }
