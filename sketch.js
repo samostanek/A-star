@@ -1,15 +1,16 @@
 var grid, start, end, spc;
-var openSet, closedSet;
+var openSet, closedSet, current;
+var done;
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 800);
 
-  spc = 50;
+  spc = 32;
   grid = gridInit(spc);
 
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
-      grid[i][j] = new Spot(i, j);
+      grid[i][j] = new Spot(i, j, random(1) < 0.3);
     }
   }
 
@@ -17,34 +18,63 @@ function setup() {
 
   start = grid[0][0];
   end = grid[grid.length - 1][grid[0].length - 1];
+  //end = random(random(grid));
 
   openSet = [start];
   closedSet = [];
+
+  done = false;
 }
 
 function draw() {
-  if (openSet.length > 0) {
-    var current = openSet[0];
-    for (let i of openSet) if (current.f > i.f) current = i;
+  if (openSet.length > 0 && !done) {
+    current = openSet[0];
+    for (let i of openSet) {
+      if (i == end) done = true;
+      if (current.f > i.f) current = i;
+    }
 
     closedSet.push(current);
     openSet = removeFromArray(current, openSet);
 
     for (let neighbor of current.neighbors) {
       if (!closedSet.includes(neighbor)) {
-        neighbor.evaluate(current.g + 1, end);
-        openSet.push(neighbor);
+        if (openSet.includes(neighbor)) {
+          if (neighbor.g > current.g + 1) {
+            neighbor.evaluate(current.g + 1, end);
+            neighbor.cameFrom = current;
+            openSet.push(neighbor);
+          }
+        } else {
+          neighbor.evaluate(current.g + 1, end);
+          neighbor.cameFrom = current;
+          openSet.push(neighbor);
+        }
       }
     }
+
+    // Draw grid
+    for (let i of grid) for (let j of i) j.show(-1, spc - 1);
+    for (let i of openSet) i.show(color(0, 255, 0), spc - 1);
+    for (let i of closedSet) i.show(color(255, 0, 0), spc - 1);
+
+    let p = findPath(current);
+    for (let el of p) el.show(color(0, 0, 255), spc - 1);
   } else {
-    console.log("DONE!");
+    if (openSet.length == 0) console.log("no solution");
+    else {
+      console.log("DONE!");
+      let p = findPath(end);
+      console.log(p);
+      for (let el of p) el.show(color(0, 0, 255), spc - 1);
+    }
+
+    // Draw grid
+    for (let i of grid) for (let j of i) j.show(-1, spc - 1);
+    for (let i of openSet) i.show(color(0, 255, 0), spc - 1);
+    for (let i of closedSet) i.show(color(255, 0, 0), spc - 1);
     noLoop();
   }
-
-  // Draw grid
-  for (let i of grid) for (let j of i) j.show(-1, spc - 1);
-  for (let i of openSet) i.show(color(0, 255, 0), spc - 1);
-  for (let i of closedSet) i.show(color(255, 0, 0), spc - 1);
 }
 
 function gridInit(space) {
@@ -64,4 +94,14 @@ function removeFromArray(el, array) {
   for (let i = array.length - 1; i >= 0; i--)
     if (array[i] == el) array.splice(i, 1);
   return array;
+}
+
+function findPath(origin) {
+  let path = [];
+  let temp = origin;
+  while (true) {
+    path.push(temp);
+    if (temp.cameFrom) temp = temp.cameFrom;
+    else return path;
+  }
 }
