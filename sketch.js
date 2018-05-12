@@ -5,20 +5,21 @@ var done;
 function setup() {
   createCanvas(800, 800);
 
-  spc = 32;
+  spc = 16;
   grid = gridInit(spc);
 
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
-      grid[i][j] = new Spot(i, j, random(1) < 0.3);
+      grid[i][j] = new Spot(i, j, random(1) < 0.5);
     }
   }
 
-  for (let i of grid) for (let j of i) j.addNeighbors(grid);
-
   start = grid[0][0];
   end = grid[grid.length - 1][grid[0].length - 1];
+  grid[grid.length - 1][grid[0].length - 1].wall = false;
   //end = random(random(grid));
+
+  for (let i of grid) for (let j of i) j.addNeighbors(grid);
 
   openSet = [start];
   closedSet = [];
@@ -61,6 +62,11 @@ function draw() {
     let p = findPath(current);
     for (let el of p) el.show(color(0, 0, 255), spc - 1);
   } else {
+    // Draw grid
+    for (let i of grid) for (let j of i) j.show(-1, spc - 1);
+    for (let i of openSet) i.show(color(0, 255, 0), spc - 1);
+    for (let i of closedSet) i.show(color(255, 0, 0), spc - 1);
+
     if (openSet.length == 0) console.log("no solution");
     else {
       console.log("DONE!");
@@ -69,10 +75,6 @@ function draw() {
       for (let el of p) el.show(color(0, 0, 255), spc - 1);
     }
 
-    // Draw grid
-    for (let i of grid) for (let j of i) j.show(-1, spc - 1);
-    for (let i of openSet) i.show(color(0, 255, 0), spc - 1);
-    for (let i of closedSet) i.show(color(255, 0, 0), spc - 1);
     noLoop();
   }
 }
