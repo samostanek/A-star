@@ -4,6 +4,7 @@ var done;
 
 function setup() {
   createCanvas(800, 800);
+  //frameRate(1);
 
   spc = 16;
   grid = gridInit(spc);
@@ -22,6 +23,7 @@ function setup() {
   for (let i of grid) for (let j of i) j.addNeighbors(grid);
 
   openSet = [start];
+  grid[start.x][start.y].evaluate(0, end);
   closedSet = [];
 
   done = false;
@@ -38,15 +40,21 @@ function draw() {
     closedSet.push(current);
     openSet = removeFromArray(current, openSet);
 
+    // Go through all the neighbors and evaluate each
     for (let neighbor of current.neighbors) {
+      // Dont evaluate if neighbor is already in closed set
       if (!closedSet.includes(neighbor)) {
+        // Check if neighbor is in open set
         if (openSet.includes(neighbor)) {
+          // If yes, compare current and neighbor g
           if (neighbor.g > current.g + 1) {
+            // If current g is better, rewrite
             neighbor.evaluate(current.g + 1, end);
             neighbor.cameFrom = current;
             openSet.push(neighbor);
           }
         } else {
+          // If not, just evaluate
           neighbor.evaluate(current.g + 1, end);
           neighbor.cameFrom = current;
           openSet.push(neighbor);
@@ -59,8 +67,8 @@ function draw() {
     for (let i of openSet) i.show(color(0, 255, 0), spc - 1);
     for (let i of closedSet) i.show(color(255, 0, 0), spc - 1);
 
-    let p = findPath(current);
-    for (let el of p) el.show(color(0, 0, 255), spc - 1);
+    // let p = findPath(current);
+    // for (let el of p) el.show(color(0, 0, 255), spc - 1);
   } else {
     // Draw grid
     for (let i of grid) for (let j of i) j.show(-1, spc - 1);
